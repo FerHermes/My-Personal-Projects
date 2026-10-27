@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>cronometro</title>
+</head>
+<body>
+    <h1>marialaura</h1>
+    <div id="estado">tiempo
+                                                                            
+    </div> 
+    <div id="tiempo">30:00</div>
+    <button id="iniciar">iniciar</button>
+    <button id="reset">reset</button>
+    
+    <script>
+        let minutos = 30;
+        let segundos = 0;
+        let corriendo = false;
+        let intervalo;
+        let enFoco = true;
+    
+        const tiempoEl = document.getElementById('tiempo');
+        const estadoEl = document.getElementById('estado');
+        const btnIniciar = document.getElementById('iniciar');
+
+        function actualizarPantalla() {
+            let m = minutos < 10 ? '0' + minutos : minutos;
+            let s = segundos < 10 ? '0' + segundos : segundos;
+            tiempoEl.textContent = `${m}:${s}`;
+        }
+        actualizarPantalla();
+
+        function contar(){
+            if (segundos === 0 ){
+                if (minutos === 0){
+                    cambiarEstado();
+                    return;
+                } 
+                minutos--;
+                segundos = 59;
+            } else {
+                segundos--;
+            }
+            actualizarPantalla();
+        }
+
+        function cambiarEstado() {
+            clearInterval(intervalo);
+            corriendo = false;
+            btnIniciar.textContent = 'Iniciar';
+
+            if (enFoco) {
+                enFoco = false;
+                minutos = 5;
+                estadoEl.textContent ='Tiempo de descanso';
+                document.body.style.background = '#2c3e50';
+            } else {
+                enFoco = true; 
+                minutos = 30;
+                estadoEl.textContent = 'tirmpo de foco';
+                document.body.style.background = '#2c3e50';
+            }
+            segundos = 0;
+            actualizarPantalla();
+        }
+
+        btnIniciar.addEventListener('click', () => {
+            if (corriendo) {
+                clearInterval(intervalo);
+                btnIniciar.textContent = 'Iniciar';
+                corriendo = false;
+            } else {
+                intervalo = setInterval(contar, 1000);
+                btnIniciar.textContent = 'Pausar';
+                corriendo = true;
+            }
+        });
+
+        document.getElementById('reset').addEventListener('click', () => {
+            clearInterval(intervalo);
+            corriendo = false;
+            enFoco = true;
+            minutos = 30;
+            segundos = 0;
+            estadoEl.textContent = 'Tiempo de Foco';
+            document.body.style.background = '#2c3e50';
+            btnIniciar.textContent = 'iniciar';
+            actualizarPantalla();
+        });
+
+        let datosGuardados = JSON.parse(localStorage.getItem('pomodoro'));
+        if (datosGuardados) {
+            minutos = datosGuardados.minutos;
+            segundos = datosGuardados.segundos;
+            enFoco = datosGuardados.enFoco;
+            actualizarPantalla();
+        }
+
+        setInterval(() => {
+            if (corriendo) {
+                localStorage.setItem('pomodoro')
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
